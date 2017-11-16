@@ -83,7 +83,36 @@ class Common_model extends CI_Model
     {
         return $this->db->insert('users_log', $data);
     }
-   
+    public function del_issue($dps_date)
+    {
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_issue_mitigation');
+    }
+    public function del_late($dps_date)
+    {
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_late_task');
+    }
+    public function del_up($dps_date)
+    {
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_upcoming_task');
+    }
+    public function del_cost($dps_date)
+    {
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_progress_cost');
+    }
+    public function del_wbs($dps_date)
+    {
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_wbs');
+    }
+    public function del_scurve($dps_date)
+    {
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_padus_curve');
+    }
     public function parse_data_kdi($id, $data_date,$kd_desc,$forecast_date,$contract_date,$dps_date, $cre_by, $crea_date, $mod_by, $mod_date)
     {
         $sql = "INSERT INTO tbl_kd_master(journal_master_id, data_date, kd_desc,forecast_date,contract_date,dps_date,cre_by,crea_date,mod_by,mod_date) VALUES('$id','$data_date','$kd_desc','$forecast_date','$contract_date','$dps_date','$cre_by','$crea_date','$mod_by','$mod_date')";
@@ -120,29 +149,33 @@ class Common_model extends CI_Model
         $sql = "INSERT INTO tbl_late_task(journal_master_id, late_task, duration, start_date, end_date, data_date, cre_by, crea_date, mod_by, mod_date,slug) VALUES ($id, '$task', '$duration', '$start_date', '$end_date', '$dps_date','$cre_by','$crea_date','$mod_by','$mod_date','$slug')";
         return $this->db->query($sql);
     }
-    public function parse_data_issue($id, $date, $issue,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slug)
+    public function parse_data_issue($id, $date, $issue,$mitigation,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slug)
     {
 
-        $sql = "INSERT INTO tbl_issue_mitigation(journal_master_id, issue_date, mitigation, data_date,cre_by, crea_date, mod_by, mod_date,slug) VALUES ($id, '$date', '$issue', '$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slug')";
+        $sql = "INSERT INTO tbl_issue_mitigation(journal_master_id, issue_date,issue,mitigation, data_date,cre_by, crea_date, mod_by, mod_date,slug) VALUES ($id, '$date', '$issue', '$mitigation','$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slug')";
         return $this->db->query($sql);
     }
     public function parse_progress_cost($id,$bal_value,$earned_value,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slug)
     {
+
         $sql = "INSERT INTO tbl_progress_cost(journal_master_id,balance_value, earned_value, data_date,cre_by, crea_date, mod_by, mod_date,slug) VALUES ($id, '$bal_value', '$earned_value', '$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slug')";
         return $this->db->query($sql);
     }
     public function parse_data_projectcost($id, $total,$balance,$earned,$newbal,$newear,$slugName, $data_date, $cre_by, $crea_date, $mod_by, $mod_date)
     {
+
         $sql = "INSERT INTO tbl_progress_cost(journal_master_id, total_value, balance_value, earned_value, balance, earned, data_date, cre_by, crea_date, mod_by, mod_date, slug) VALUES ($id,'$total','$balance','$earned','$newbal', '$newear', '$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slugName')";
         return $this->db->query($sql);
     }
     public function parse_data_prgm_scurve($id,$time ,$early_prec,$late_prec,$actual_prec, $data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName)
     {
+
         $sql = "INSERT INTO tbl_padus_curve(journal_master_id,  scurve_time, early_perc, late_perc, actual_perc, data_date, cre_by, crea_date, mod_by, mod_date, slug) VALUES ($id,'$time' , '$early_prec','$late_prec','$actual_prec', '$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slugName')";
         return $this->db->query($sql);
     }
     public function parse_data_prgm_wbs($id, $sub_name, $value,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName)
     {
+
         $sql = "INSERT INTO tbl_wbs(journal_master_id, subject, sub_value,data_date, cre_by, crea_date, mod_by, mod_date, slug) VALUES ($id,'$sub_name' , '$value','$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slugName')";
         return $this->db->query($sql);
     }
@@ -176,6 +209,13 @@ class Common_model extends CI_Model
         $rowcount = $query->num_rows();
         return $rowcount;
     }
+    function count_scurve_id($dps_date){
+        $this->db->from('tbl_padus_curve');
+        $this->db->where('data_date', $dps_date);
+        $query = $this->db->get();
+        $rowcount = $query->num_rows();
+        return $rowcount;
+    }
     function issue_delete($dps_date){
         $this->db->where('data_date', $dps_date);
         $this->db->delete('tbl_issue_mitigation');
@@ -191,6 +231,14 @@ class Common_model extends CI_Model
         $this->db->where('data_date', $dps_date);
         $this->db->delete('tbl_progress_cost');
     }
+    function count_wbs_id($dps_date){
+        $this->db->from('tbl_wbs');
+        $this->db->where('data_date', $dps_date);
+        $query = $this->db->get();
+        $rowcount = $query->num_rows();
+        return $rowcount;
+    }
+
     /**
      * @AgailE
      * date:18/09/2016
