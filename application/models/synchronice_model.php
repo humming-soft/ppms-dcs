@@ -82,7 +82,7 @@ class synchronice_model extends CI_Model
     }
     function getissue($slug,$date){
         $slug1=strtoupper($slug);
-        $query=$this->db->query("SELECT  issue_date, mitigation FROM tbl_issue_mitigation where (slug='$slug' or slug='$slug1') and data_date='$date'");
+        $query=$this->db->query("SELECT  issue_date,issue, mitigation FROM tbl_issue_mitigation where (slug='$slug' or slug='$slug1') and data_date='$date'");
         $result= $query->result_array();
         return $result;
 

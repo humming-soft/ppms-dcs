@@ -198,7 +198,7 @@ class Syncronice extends CI_Controller
         if($date != ""){
             $result2 =$this->synchronice_model->getissue($slug,$date);
             foreach($result2 as $q){
-                $issue1[] = array($q['issue_date'], $q['mitigation']);
+                $issue1[] = array($q['issue_date'],$q['issue'], $q['mitigation']);
             }
             $issue['date']=array(date('d-F-Y', strtotime($date)));
             $issue['value']=$issue1;

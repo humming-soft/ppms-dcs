@@ -73,6 +73,10 @@ class Dataentry extends CI_Controller
             $mod_by = $this->session->userdata('uid');
             $row = $this->journal_model->get_category_name($cetegoryId);
             $pjctslug =$this->journal_model->get_slug_name($this->input->post("journalid1"));
+            $row_del = $this->common_model->progress_cost($data_date);
+            if($row_del > 0){
+                $this->common_model->progress_cost_delete($data_date);
+            }
             foreach ($pjctslug as $row1):
                 $slugName = $row1['slug'];
             endforeach;
@@ -290,8 +294,9 @@ class Dataentry extends CI_Controller
                     while ($i <= $highestRow) {
                         $date = (empty($parse_array[$i][0])) ? "" : $parse_array[$i][0];
                         $issue = (empty($parse_array[$i][1])) ? "" : $parse_array[$i][1];
+                        $mitigation = (empty($parse_array[$i][2])) ? "" : $parse_array[$i][2];
 
-                            $res = $this->common_model->parse_data_issue($id, $date, $issue,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName);
+                            $res = $this->common_model->parse_data_issue($id, $date, $issue,$mitigation,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName);
                             $i++;
                             $count++;
 
@@ -306,6 +311,10 @@ class Dataentry extends CI_Controller
                     break;
                 case "PADU-SCURVE":
                     $i = 2;
+                    $row = $this->common_model->count_scurve_id($data_date);
+                    if($row > 0){
+                        $this->common_model->del_scurve($data_date);
+                    }
                     $count=0;
                     while ($i <= $highestRow) {
                         $time=(empty($parse_array[$i][0])) ? "" : $parse_array[$i][0];
@@ -336,6 +345,10 @@ class Dataentry extends CI_Controller
                     break;
                 case "WBS":
                     $i = 2;
+                    $row = $this->common_model->count_wbs_id($data_date);
+                    if($row > 0){
+                        $this->common_model->del_wbs($data_date);
+                    }
                     $count=0;
                     while ($i <= $highestRow) {
                         $sub_name = (empty($parse_array[$i][0])) ? "" : $parse_array[$i][0];
