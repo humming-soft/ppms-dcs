@@ -68,6 +68,7 @@ class Syncronice extends CI_Controller
         $up_coming =$this-> upcoming($slug);
         $late_task =$this-> late($slug);
         $issue = $this->issue($slug);
+        $parking = $this->parking($slug);
          $wbs_summery =$this-> wbs($slug);
          $progress_cost = $this->progres_cost($slug);
          $scurve = $this->scurve($slug);
@@ -124,8 +125,8 @@ class Syncronice extends CI_Controller
                 'currentEarly' => $scurve['scurve'][$index][1] . '%',
                 'currentLate' => $scurve['scurve'][$index][2] . '%',
                 'currentActual' => $scurve['scurve'][$index][3] . '%',
-                'varEarly' =>$scurve['scurve'][$index][3] - $scurve['scurve'][$index][1] .'%',
-                'varLate' => $scurve['scurve'][$index][3] - $scurve['scurve'][$index][2] .'%',
+                'varEarly' =>round(($scurve['scurve'][$index][3] - $scurve['scurve'][$index][1]),2) .'%',
+                'varLate' => round(($scurve['scurve'][$index][3] - $scurve['scurve'][$index][2]),2) .'%',
                 'chartType' => "long",
                 'viewType' => "2",
             );
@@ -135,8 +136,9 @@ class Syncronice extends CI_Controller
         $finalISSUE = array("padu_issuemitigation" => $issue);
         $finalSUMMERY = array("padu_wbs" => $wbs_summary_arr);
         $finalPROGRESS=array("padu_projectcost" => $progress_cost_arr);
+        $finalPARK=array("padu_parking" => $parking);
         $finalSCURVE = array("scurve" => $scurvearr);
-        $superFinal = array($slug => array_merge($finalUP, $finalLATE, $finalISSUE,$finalSUMMERY,$finalPROGRESS,$finalSCURVE));
+        $superFinal = array($slug => array_merge($finalUP, $finalLATE, $finalISSUE,$finalSUMMERY,$finalPROGRESS,$finalSCURVE,$finalPARK));
         return json_encode($superFinal);
     }
     /**
@@ -187,6 +189,28 @@ class Syncronice extends CI_Controller
         }
 
         return $late;
+    }
+    function parking($slug){
+        $result1=$this->synchronice_model->get_maxdate_park($slug);
+        foreach ( $result1 as $result ) {
+            $date = $result['maxdate'];
+        }
+        $park = array();
+        $park1 = array();
+        if($date != ""){
+            $result2 =$this->synchronice_model->getpark($slug,$date);
+
+            foreach($result2 as $q){
+                $park1[] = array($q['park_date'], $q['park_by'], $q['issue'], $q['scope'],$q['action_park'],$q['remark']);
+            }
+            $park['date']=array(date('d-F-Y', strtotime($date)));
+            $park['value']=$park1;
+        }else{
+            $park['date']="";
+            $park['value']="";
+        }
+
+        return $park;
     }
     function issue($slug){
         $result1=$this->synchronice_model->get_maxdate_issue($slug);
@@ -256,7 +280,7 @@ class Syncronice extends CI_Controller
         $scurve = array();
         $scurve1 = array();
         if($date != ""){
-            $result2 =$this->synchronice_model->getscurve($slug,$date);
+            $result2 =$this->synchronice_model->getscurve($slug);
 
             foreach($result2 as $q){
                 $scurve1[] = array($q['scurve_time'], $q['early_perc'], $q['late_perc'], $q['actual_perc']);
