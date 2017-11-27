@@ -95,13 +95,13 @@ $db['default'] = array(
 	'save_queries' => TRUE
 	);*/
 
-$active_group = 'live';
+$active_group = 'default';
 $query_builder = TRUE;
 
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'postgres';
 $db['default']['password'] = 'summersoft123';
-$db['default']['database'] = 'PPMS';
+$db['default']['database'] = 'PPMS_NEW';
 $db['default']['dbdriver'] = 'postgre';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;

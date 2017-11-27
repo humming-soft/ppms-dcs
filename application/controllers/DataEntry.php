@@ -309,32 +309,72 @@ class Dataentry extends CI_Controller
                         redirect('dataentry/list_dataentry', 'refresh');
                     }
                     break;
+                case "PARKING":
+                    $count=0;
+                    $row = $this->common_model->count_park_id($data_date);
+                    if($row > 0){
+                        $this->common_model->park_delete($data_date);
+                    }
+                    $i = 2;
+                    while ($i <= $highestRow) {
+                        $date_raised = (empty($parse_array[$i][1])) ? "" : $parse_array[$i][1];
+                        $raised_by = (empty($parse_array[$i][2])) ? "" : $parse_array[$i][2];
+                        $issues = (empty($parse_array[$i][3])) ? "" : $parse_array[$i][3];
+                        $scope = (empty($parse_array[$i][4])) ? "" : $parse_array[$i][4];
+                        $action  = (empty($parse_array[$i][5])) ? "" : $parse_array[$i][5];
+                        $remark = (empty($parse_array[$i][6])) ? "" : $parse_array[$i][6];
+                        $res = $this->common_model->parse_data_park($id,$date_raised,$raised_by,$issues,$scope,$action,$remark,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName);
+                        $i++;
+                        $count++;
+                    }
+                    if ($res) {
+                        $this->session->set_flashdata('success', 'file is successfully uploaded  '.$count.' Rows Inserted');
+                        redirect('dataentry/list_dataentry', 'refresh');
+                    } else {
+                        $this->session->set_flashdata('error', 'Upload is failed.');
+                        redirect('dataentry/list_dataentry', 'refresh');
+                    }
+                    break;
                 case "PADU-SCURVE":
                     $i = 2;
-                    $row = $this->common_model->count_scurve_id($data_date);
-                    if($row > 0){
-                        $this->common_model->del_scurve($data_date);
-                    }
                     $count=0;
-                    while ($i <= $highestRow) {
-                        $time=(empty($parse_array[$i][0])) ? "" : $parse_array[$i][0];
-                        $early_prec = (empty($parse_array[$i][1])) ? "" : $parse_array[$i][1];
-                        $early_perc_value=round(($early_prec*100) ,2);
-                        if($count == 0){
-                            $actual_prec_value=0.00;
-                        }else{
-                            $actual_prec = (empty($parse_array[$i][2])) ? "" : $parse_array[$i][2];
-                            $actual_prec_value=!empty($actual_prec)? round(($actual_prec*100),2):$actual_prec;
-                        }
+                    $row = $this->common_model->count_scurve_id($data_date);
+                    if($row == 0){
+                        while ($i <= $highestRow) {
+                            $time=(empty($parse_array[$i][0])) ? "" : $parse_array[$i][0];
+                            $early_prec = (empty($parse_array[$i][1])) ? "" : $parse_array[$i][1];
+                            $early_perc_value=round(($early_prec*100) ,2);
+                            if($count == 0){
+                                $actual_prec_value=0.00;
+                            }else{
+                                $actual_prec = (empty($parse_array[$i][2])) ? "" : $parse_array[$i][2];
+                                $actual_prec_value=!empty($actual_prec)? round(($actual_prec*100),2):$actual_prec;
+                            }
                             if($early_perc_value > 0.00){
                                 $late_prec = $early_perc_value - 2.00;
                             }else{
                                 $late_prec=0.00;
                             }
-                            $res = $this->common_model->parse_data_prgm_scurve($id,$time , $early_perc_value,$late_prec,$actual_prec_value, $data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName);
+                            $res = $this->common_model->parse_data_prgm_scurve($id,$time ,$early_perc_value,$late_prec,$actual_prec_value, $data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName);
                             $i++;
                             $count++;
+                        }
+                    }else{
+                        while ($i <= $highestRow) {
+                            $time=(empty($parse_array[$i][0])) ? "" : $parse_array[$i][0];
+                            if ($count == 0) {
+                                $actual_prec_value = 0.00;
+                            } else {
+                                $actual_prec = (empty($parse_array[$i][2])) ? "" : $parse_array[$i][2];
+                                $actual_prec_value = !empty($actual_prec) ? round(($actual_prec * 100), 2) : $actual_prec;
+                            }
+                            $res = $this->common_model->parse_data_prgm_scurve_update($id,$time,$actual_prec_value,$count);
+                            $i++;
+                            $count++;
+                        }
+                        exit;
                     }
+                    
                     if ($res) {
                         $this->session->set_flashdata('success', 'file is successfully uploaded  '.$count.' Rows Inserted');
                         redirect('dataentry/list_dataentry', 'refresh');
@@ -430,7 +470,9 @@ class Dataentry extends CI_Controller
                 $cell = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow($col, $row);
                 if (PHPExcel_Shared_Date::isDateTime($cell)) {
                     $InvDate = $cell->getValue();
-                    $cellVal = date($format = "Y-m-d", PHPExcel_Shared_Date::ExcelToPHP($InvDate));
+                    if($InvDate !=''){
+                        $cellVal = date($format = "Y-m-d", PHPExcel_Shared_Date::ExcelToPHP($InvDate));
+                    }
                 } else {
                     $cellVal = $cell->getValue();
                 }

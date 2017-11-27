@@ -179,7 +179,12 @@ class Common_model extends CI_Model
         $sql = "INSERT INTO tbl_wbs(journal_master_id, subject, sub_value,data_date, cre_by, crea_date, mod_by, mod_date, slug) VALUES ($id,'$sub_name' , '$value','$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slugName')";
         return $this->db->query($sql);
     }
+    public function parse_data_park($id,$date_raised,$raised_by,$issues,$scope,$action,$remark,$data_date, $cre_by, $crea_date, $mod_by, $mod_date,$slugName)
+    {
 
+        $sql = "INSERT INTO tbl_parking_pot(journal_master_id, park_date, park_by, issue, scope, action_park, remark, data_date, cre_by, crea_date, mod_by, mod_date, slug) VALUES ($id,'$date_raised' ,'$raised_by','$issues','$scope','$action','$remark','$data_date','$cre_by','$crea_date','$mod_by','$mod_date','$slugName')";
+        return $this->db->query($sql);
+    }
     function count_upcoming_id($dps_date){
         $this->db->from('tbl_upcoming_task');
         $this->db->where('data_date', $dps_date);
@@ -231,12 +236,42 @@ class Common_model extends CI_Model
         $this->db->where('data_date', $dps_date);
         $this->db->delete('tbl_progress_cost');
     }
+    function count_park_id($dps_date){
+        $this->db->from('tbl_parking_pot');
+        $this->db->where('data_date', $dps_date);
+        $query = $this->db->get();
+        $rowcount = $query->num_rows();
+        return $rowcount;
+    }
+    function park_delete($dps_date){
+        $this->db->where('data_date', $dps_date);
+        $this->db->delete('tbl_parking_pot');
+    }
     function count_wbs_id($dps_date){
         $this->db->from('tbl_wbs');
         $this->db->where('data_date', $dps_date);
         $query = $this->db->get();
         $rowcount = $query->num_rows();
         return $rowcount;
+    }
+    public function parse_data_prgm_scurve_update($id,$time ,$actual_prec,$count1)
+    {
+        if($count1 > 0){
+            $query ="SELECT count(*) as ncount FROM tbl_padus_curve where scurve_time='$time' and journal_master_id=$id and actual_perc > '0.00' ";
+            $query = $this->db->query($query);
+            $query_result = $query->result();
+            foreach ( $query_result as $result ) {
+                $count = $result->ncount;
+            }
+            if($count == 0 ){
+                $this->db->where('journal_master_id', $id);
+                $this->db->where('scurve_time', $time);
+                $this->db->set('actual_perc', $actual_prec);
+                return $this->db->update('tbl_padus_curve');
+            }
+        }
+
+        
     }
 
     /**

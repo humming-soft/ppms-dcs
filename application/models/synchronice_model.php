@@ -45,6 +45,13 @@ class synchronice_model extends CI_Model
         return $result;
 
     }
+    function get_maxdate_park($slug){
+        $slug1=strtoupper($slug);
+        $query=$this->db->query("SELECT  MAX(data_date) as maxdate FROM tbl_parking_pot where slug='$slug' or slug='$slug1'");
+        $result= $query->result_array();
+        return $result;
+
+    }
     function get_maxdate_cost($slug){
         $slug1=strtoupper($slug);
         $query=$this->db->query("SELECT  MAX(data_date) as maxdate FROM tbl_progress_cost where slug='$slug' or slug='$slug1'");
@@ -80,6 +87,13 @@ class synchronice_model extends CI_Model
         return $result;
 
     }
+    function getpark($slug,$date){
+        $slug1=strtoupper($slug);
+        $query=$this->db->query("SELECT park_date, park_by, issue, scope, action_park, remark FROM tbl_parking_pot where (slug='$slug' or slug='$slug1') and data_date='$date'");
+        $result= $query->result_array();
+        return $result;
+
+    }
     function getissue($slug,$date){
         $slug1=strtoupper($slug);
         $query=$this->db->query("SELECT  issue_date,issue, mitigation FROM tbl_issue_mitigation where (slug='$slug' or slug='$slug1') and data_date='$date'");
@@ -101,9 +115,9 @@ class synchronice_model extends CI_Model
         return $result;
 
     }
-    function getscurve($slug,$date){
+    function getscurve($slug){
         $slug1=strtoupper($slug);
-        $query=$this->db->query("SELECT scurve_time, early_perc,late_perc, actual_perc FROM tbl_padus_curve where (slug='$slug' or slug='$slug1') and data_date='$date'");
+        $query=$this->db->query("SELECT scurve_time, early_perc,late_perc, actual_perc FROM tbl_padus_curve where (slug='$slug' or slug='$slug1')");
         $result= $query->result_array();
         return $result;
 
